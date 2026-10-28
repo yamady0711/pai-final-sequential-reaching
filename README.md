@@ -65,7 +65,7 @@ Physical AI 応用編1 最終課題。Ignition Gazebo上のCRANE+ V2の手先を
 - 本リポジトリを取得して依存関係を入れる
 
 ```bash
-cd ~ && git clone --recursive <本リポジトリのURL> pai_training
+cd ~ && git clone --recursive https://github.com/yamady0711/pai-final-sequential-reaching.git pai_training
 cd ~/pai_training && pixi install
 ln -s ~/pai_training/pointing_task ~/pointing_task
 ```
