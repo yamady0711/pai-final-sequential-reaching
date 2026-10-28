@@ -1,0 +1,1 @@
+{"trial": 0, "seed": 1000, "amp": 0.0, "model": "/home/ubuntu/checkpoints/train/crane_plus_pointing_act_n8", "success": false, "reason": "timeout before B", "reached": [{"name": "A", "t": 10.7}], "duration_sec": 60.003, "idle_sec": 8.877, "min_dist_m": {"A": 0.0395, "B": 0.0839, "C": null}, "radius_m": 0.04, "wall_time": "2026-10-25T16:55:06"}

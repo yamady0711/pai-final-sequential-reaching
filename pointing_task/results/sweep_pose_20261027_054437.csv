@@ -1,0 +1,4 @@
+pose,offset,success,duration_sec,reached,reason
+P3,"-0.5,0,0,0",False,60.05,-,timeout before A
+P4,"0,0,-0.5,0",False,60.05,-,timeout before A
+P5,"0,0.3,0,0",False,60.001,-,timeout before A

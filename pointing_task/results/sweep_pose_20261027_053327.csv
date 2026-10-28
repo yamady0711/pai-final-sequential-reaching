@@ -1,0 +1,9 @@
+pose,offset,success,duration_sec,reached,reason
+P1,"0,0,0,0",True,6.3,A/B/C,all points reached in order
+P2,"0.5,0,0,0",True,5.1,A/B/C,all points reached in order
+P3,"-0.5,0,0,0",False,60.001,-,timeout before A
+P4,"0,0,-0.5,0",False,60.051,-,timeout before A
+P5,"0,0.3,0,0",False,60.049,-,timeout before A
+P6,"0,-0.3,0,0",True,6.45,A/B/C,all points reached in order
+P7,"0,0,0,0.3",True,6.45,A/B/C,all points reached in order
+P8,"0,0,0,-0.3",True,6.598,A/B/C,all points reached in order

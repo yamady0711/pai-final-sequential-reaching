@@ -1,0 +1,1 @@
+{"trial": 0, "seed": null, "amp": null, "model": null, "success": true, "reason": "all points reached in order", "reached": [{"name": "A", "t": 20.75}, {"name": "B", "t": 49.45}, {"name": "C", "t": 52.9}], "duration_sec": 52.9, "min_dist_m": {"A": 0.0397, "B": 0.0392, "C": 0.0387}, "radius_m": 0.04, "wall_time": "2026-10-25T06:07:23"}

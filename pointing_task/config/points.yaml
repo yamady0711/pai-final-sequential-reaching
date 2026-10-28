@@ -1,0 +1,24 @@
+# 点検ポイント指差しタスクの設定
+# xyz は「world」座標系での crane_plus_link_hand の位置 [m]。
+# ↓ の値は仮。テレオペで手先を各点へ動かし、
+#   ros2 run tf2_ros tf2_echo world crane_plus_link_hand
+# の Translation を書き写すこと。
+frame: world
+hand_link: crane_plus_link_hand
+
+radius: 0.04          # この距離[m]以内に入ったら「到達」
+start_move_eps: 0.01  # 手先が初期位置からこれ以上動いたら計時開始[m]
+timeout_sec: 60.0     # 動き出してからの制限時間（シミュレーション時間）
+wait_start_sec: 60.0  # 動き出すまでの待ち時間の上限（推論ノードの起動待ち）
+
+points:              # この順番どおりに到達すれば成功
+  - name: A
+    xyz: [0.115, 0.121, 0.159]
+    rgba: [1.0, 0.2, 0.2, 0.6]
+  - name: B
+    xyz: [0.166, 0.019, 0.159]
+    rgba: [0.2, 1.0, 0.2, 0.6]
+  - name: C
+    xyz: [0.085, -0.144, 0.159]
+    rgba: [0.2, 0.4, 1.0, 0.6]
+gazebo_offset: [0.0, 0.0, 1.015]   # TFのworld -> Gazeboのworld

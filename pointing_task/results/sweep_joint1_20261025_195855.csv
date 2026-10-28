@@ -1,0 +1,7 @@
+joint,delta_rad,delta_deg,success,duration_sec,reached,reason
+1,-0.1,-5.7,True,6.901,A/B/C,all points reached in order
+1,-0.05,-2.9,True,6.6,A/B/C,all points reached in order
+1,-0.02,-1.1,True,6.396,A/B/C,all points reached in order
+1,0.02,1.1,True,6.2,A/B/C,all points reached in order
+1,0.05,2.9,False,60.005,-,timeout before A
+1,0.1,5.7,True,6.2,A/B/C,all points reached in order

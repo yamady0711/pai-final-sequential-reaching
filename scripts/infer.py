@@ -6,6 +6,15 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 import torch
 import argparse
 import numpy as np
+import os, json
+_RANGE = os.environ.get("OBS_RANGE")
+if _RANGE:
+    _r = json.load(open(_RANGE))
+    OBS_LO = np.array(_r["min"], dtype=np.float32)
+    OBS_HI = np.array(_r["max"], dtype=np.float32)
+    print(f"[obs clip] ON: {_RANGE}")
+else:
+    OBS_LO = OBS_HI = None
 
 from lerobot.common.policies.act.modeling_act import ACTPolicy
 
@@ -32,6 +41,8 @@ class InferenceNode(Node):
         arm_pos = [name_to_pos.get(j, 0.0) for j in ARM_JOINT_NAMES]
         gripper_pos = name_to_pos.get(GRIPPER_JOINT_NAME, 0.0)
         self.latest_joint_state = np.array(arm_pos + [gripper_pos], dtype=np.float32)
+        if OBS_LO is not None:
+            self.latest_joint_state = np.clip(self.latest_joint_state, OBS_LO, OBS_HI)
 
     def publish_action(self):
         if self.latest_joint_state is None:

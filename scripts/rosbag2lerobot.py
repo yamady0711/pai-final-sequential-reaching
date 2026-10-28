@@ -116,6 +116,7 @@ class RosbagToLeRobot:
                 g_times = np.array([ts for _, ts in messages['/crane_plus_gripper_controller/joint_trajectory']])
                 # Use the intersection of available times
                 start_time = max(j_times[0], a_times[0], g_times[0])
+                start_time = motion_start_time(j_times, np.array([m.position for m, _ in messages['/joint_states']]), start_time)
                 end_time = min(j_times[-1], a_times[-1], g_times[-1])
                 target_freq = self.target_freq or 20
                 num_frames = int((end_time - start_time) * target_freq / 1e9)
@@ -143,6 +144,7 @@ class RosbagToLeRobot:
                 g_times = np.array([ts for _, ts in gripper_cmds])
                 g_pos = np.array([msg.points[0].positions[0] if (msg.points and len(msg.points[0].positions)>0) else 0.0 for msg, _ in gripper_cmds])
                 start_time = max(j_times[0], a_times[0], g_times[0])
+                start_time = motion_start_time(j_times, np.array([m.position for m, _ in messages['/joint_states']]), start_time)
                 end_time = min(j_times[-1], a_times[-1], g_times[-1])
                 target_freq = self.target_freq or 20
                 num_frames = episode_lengths[idx]
@@ -153,7 +155,12 @@ class RosbagToLeRobot:
                 g_pos_sampled = self._sample_and_hold(g_times, g_pos, target_times)  # (num_frames,)
                 # Concatenate after sampling
                 a_pos_full = np.hstack([a_pos_sampled, g_pos_sampled.reshape(-1,1)])  # (num_frames, 5)
-                for i in range(max_frames):
+                keep = drop_pauses(j_pos_sampled, a_pos_full)
+                print(f"  pauses removed: {num_frames} -> {len(keep)} frames")
+                j_pos_sampled = j_pos_sampled[keep]
+                a_pos_full = a_pos_full[keep]
+                num_frames = len(keep)
+                for i in range(num_frames):
                     idx_to_use = min(i, num_frames - 1)
                     self.dataset.add_frame({
                         "observation.state": torch.tensor(j_pos_sampled[idx_to_use], dtype=torch.float32),
@@ -170,6 +177,34 @@ class RosbagToLeRobot:
                 traceback.print_exc()
                 continue
         return str(self.dataset.root)
+
+TRIM_EPS_RAD = 0.02     # アームのどれかの関節がこれ以上動いたら「動き出し」[rad]
+TRIM_MARGIN_SEC = 0.5   # 動き出しの何秒前から変換するか
+
+
+def motion_start_time(j_times, j_pos, start_time):
+    """先頭の静止区間を除くため、動き出し TRIM_MARGIN_SEC 秒前の時刻[ns]を返す。"""
+    pos = np.asarray(j_pos)[:, :4]          # アーム4軸（5列目のグリッパは除外）
+    moved = np.any(np.abs(pos - pos[0]) > TRIM_EPS_RAD, axis=1)
+    if not moved.any():
+        return start_time
+    t = int(j_times[int(np.argmax(moved))]) - int(TRIM_MARGIN_SEC * 1e9)
+    return max(start_time, t)
+
+
+PAUSE_EPS_RAD = 0.005   # 状態も指令もこれ以上変わらないフレームを「停止」とみなす[rad]
+
+
+def drop_pauses(j_pos, a_pos, eps=PAUSE_EPS_RAD):
+    """直前に残したフレームから、アームの状態も指令も eps 以上変わっていないフレームを除く。"""
+    keep = [0]
+    for i in range(1, len(j_pos)):
+        k = keep[-1]
+        if (np.abs(j_pos[i, :4] - j_pos[k, :4]).max() > eps
+                or np.abs(a_pos[i, :4] - a_pos[k, :4]).max() > eps):
+            keep.append(i)
+    return np.array(keep)
+
 
 def load_config_py(config_path):
     spec = importlib.util.spec_from_file_location("crane_features", config_path)
